@@ -16,6 +16,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.typyz.mysticanvil.block.ModBlocks;
+import net.typyz.mysticanvil.item.ModCreativeModTabs;
+import net.typyz.mysticanvil.item.ModItems;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -29,6 +32,11 @@ public class MysticAnvil
 
     public MysticAnvil() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        ModCreativeModTabs.register(modEventBus);
+
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
@@ -47,7 +55,10 @@ public class MysticAnvil
 
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-
+        //Adds items to existing(vanilla) creative tabs
+//        if(event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+//            event.accept(ModItems.WRENCH);
+//        }
     }
 
     @SubscribeEvent
