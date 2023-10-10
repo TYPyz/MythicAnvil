@@ -22,6 +22,7 @@ public class ModCreativeModTabs {
                         //adds item into custom tab ( .get() is needed only for custom item)
                         pOutput.accept(ModItems.WRENCH.get());
                         pOutput.accept(ModBlocks.MYSTIC_LOG.get());
+                        pOutput.accept(ModItems.MYSTIC_WAND.get());
                     })
                     .build());
 

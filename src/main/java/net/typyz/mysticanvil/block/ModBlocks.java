@@ -1,5 +1,7 @@
 package net.typyz.mysticanvil.block;
 
+import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.level.block.DropExperienceBlock;
 import net.typyz.mysticanvil.MysticAnvil;
 import net.typyz.mysticanvil.item.ModItems;
 import net.minecraft.world.item.BlockItem;
@@ -21,7 +23,16 @@ public class ModBlocks {
             DeferredRegister.create(ForgeRegistries.BLOCKS, MysticAnvil.MOD_ID);
 
     public static final RegistryObject<Block> MYSTIC_LOG = registerBlock("mystic_log",
-            () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.WOOD)));
+            () -> new Block(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).sound(SoundType.WOOD)));
+
+    //"Questo qui sotto serve se vuoi che il blocco droppi exp, ma anche se vuoi impostare una durezza del blocco
+    // e se vuoi che il blocco non droppi nulla in caso non venga minato con il tool corretto."
+//    public static final RegistryObject<Block> SAPPHIRE_ORE = registerBlock("sapphire_ore",
+//            () -> new DropExperienceBlock(BlockBehaviour.Properties.copy(Blocks.STONE)
+//                    .strength(2f).requiresCorrectToolForDrops(), UniformInt.of(3, 6)));
+                                                                              /* UniformInt.of(3, 6) server per
+                                                                              dichiarare quanta ne vuoi droppare di exp
+                                                                              in questo caso è da 3 a 6." */
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
