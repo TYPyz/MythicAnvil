@@ -1,8 +1,6 @@
 package net.typyz.mythicanvil.block.custom;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -15,11 +13,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -29,10 +33,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 public class MythicAnvilBlock extends Block {
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final VoxelShape SHAPE = Shapes.or(
             Block.box(0, 0, 0, 16, 13, 16),
             Block.box(14, 13, 2, 16, 14, 14),
@@ -45,14 +49,32 @@ public class MythicAnvilBlock extends Block {
             Block.box(3, 19, 3, 13, 21, 13)
     );
 
-    private int ticksToWait = 10; // Adjust the number of ticks as needed
-    private int tickCounter = 0;
-
     public MythicAnvilBlock(Properties pProperties) {
         super(pProperties);
     }
 
+    /* FACING */
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
+        return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite());
+    }
 
+    @Override
+    public BlockState rotate(BlockState pState, Rotation pRotation) {
+        return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState pState, Mirror pMirror) {
+        return pState.rotate(pMirror.getRotation(pState.getValue(FACING)));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+        pBuilder.add(FACING);
+    }
+
+    /* ^ FACING ^ */
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         return SHAPE;
@@ -63,20 +85,14 @@ public class MythicAnvilBlock extends Block {
         return RenderShape.MODEL;
     }
 
-
     @Override
     public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
-        if (worldIn.isClientSide()) {
-            // This code only runs on the client side
-            return InteractionResult.SUCCESS;
-        }
-
-
 
         ItemStack heldItem = player.getItemInHand(handIn);
         boolean itemInMainHand = false;
         boolean hasFirstIngredient = false;
         boolean hasSecondIngredient = false;
+
         List<ItemEntity> itemsToRemove = new ArrayList<>();
 
         if (handIn == InteractionHand.MAIN_HAND) {
@@ -105,8 +121,10 @@ public class MythicAnvilBlock extends Block {
                 for (ItemEntity itemEntity : itemsToRemove) {
                     itemEntity.remove(Entity.RemovalReason.KILLED);
                 }
-                BlockPos AnvilPos = new BlockPos(pos.getX(), pos.getY() + 1 , pos.getZ());
-                if (!worldIn.canSeeSky(pos)) { return InteractionResult.PASS; }
+                BlockPos AnvilPos = new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ());
+                if (!worldIn.canSeeSky(pos)) {
+                    return InteractionResult.PASS;
+                }
                 LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(worldIn);
                 if (lightningbolt != null) {
                     lightningbolt.setVisualOnly(true);

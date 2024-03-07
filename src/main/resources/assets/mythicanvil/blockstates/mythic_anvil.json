@@ -1,0 +1,8 @@
+{
+  "variants": {
+      "facing=north": {"model": "mythicanvil:block/mythic_anvil"},
+      "facing=east": {"model": "mythicanvil:block/mythic_anvil", "y": 90},
+      "facing=south": {"model": "mythicanvil:block/mythic_anvil", "y": 180},
+      "facing=west": {"model": "mythicanvil:block/mythic_anvil", "y": 270}
+  }
+}
