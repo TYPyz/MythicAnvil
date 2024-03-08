@@ -16,6 +16,7 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> MYTHIC_WAND = ITEMS.register("mythic_wand",
             () -> new MythicWandItem(new Item.Properties().durability(100)));
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

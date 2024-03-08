@@ -30,6 +30,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,12 +61,12 @@ public class MythicAnvilBlock extends Block {
     }
 
     @Override
-    public BlockState rotate(BlockState pState, Rotation pRotation) {
+    public @NotNull BlockState rotate(BlockState pState, Rotation pRotation) {
         return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
     }
 
     @Override
-    public BlockState mirror(BlockState pState, Mirror pMirror) {
+    public @NotNull BlockState mirror(BlockState pState, Mirror pMirror) {
         return pState.rotate(pMirror.getRotation(pState.getValue(FACING)));
     }
 
@@ -76,73 +77,71 @@ public class MythicAnvilBlock extends Block {
 
     /* ^ FACING ^ */
     @Override
-    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
         return SHAPE;
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState pState) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState pState) {
         return RenderShape.MODEL;
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
+        if (handIn != InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
 
         ItemStack heldItem = player.getItemInHand(handIn);
-        boolean itemInMainHand = false;
         boolean hasFirstIngredient = false;
         boolean hasSecondIngredient = false;
 
         List<ItemEntity> itemsToRemove = new ArrayList<>();
 
-        if (handIn == InteractionHand.MAIN_HAND) {
-            if (heldItem.getItem() == Items.DIAMOND_AXE) {
-                // Check if the player is holding correct tool
-                itemInMainHand = true;
+        // Check if the player is holding correct tool
+        if (heldItem.getItem() == Items.DIAMOND_AXE) {
 
-                List<ItemEntity> itemsOnBlock = worldIn.getEntitiesOfClass(ItemEntity.class, new AABB(pos.getX(), pos.getY() + 1.5D, pos.getZ(), pos.getX() + 1.0D, pos.getY() + 1.5D, pos.getZ() + 1.0D));
+            List<ItemEntity> itemsOnBlock =
+                    worldIn.getEntitiesOfClass(ItemEntity.class, new AABB(pos.getX(), pos.getY() + 1.5D, pos.getZ(), pos.getX() + 1.0D, pos.getY() + 1.5D, pos.getZ() + 1.0D));
 
-                for (ItemEntity itemEntity : itemsOnBlock) {
-                    Item item = itemEntity.getItem().getItem();
-                    if (item == Items.EMERALD) {
-                        // Check for first ingredient
-                        hasFirstIngredient = true;
-                        itemsToRemove.add(itemEntity);
-                    } else if (item == Items.COAL) {
-                        // Check for second ingredient
-                        hasSecondIngredient = true;
-                        itemsToRemove.add(itemEntity);
-                    }
+            for (ItemEntity itemEntity : itemsOnBlock) {
+                Item item = itemEntity.getItem().getItem();
+                if (item == Items.EMERALD) {
+                    // Check for first ingredient
+                    hasFirstIngredient = true;
+                    itemsToRemove.add(itemEntity);
+                } else if (item == Items.COAL) {
+                    // Check for second ingredient
+                    hasSecondIngredient = true;
+                    itemsToRemove.add(itemEntity);
                 }
-
             }
-            if (itemInMainHand && hasFirstIngredient && hasSecondIngredient) {
-
-                for (ItemEntity itemEntity : itemsToRemove) {
-                    itemEntity.remove(Entity.RemovalReason.KILLED);
-                }
-                BlockPos AnvilPos = new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ());
-                if (!worldIn.canSeeSky(pos)) {
-                    return InteractionResult.PASS;
-                }
-                LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(worldIn);
-                if (lightningbolt != null) {
-                    lightningbolt.setVisualOnly(true);
-                    lightningbolt.moveTo(Vec3.atBottomCenterOf(AnvilPos).add(0, 0.3, 0));
-                    worldIn.addFreshEntity(lightningbolt);
-                }
-
-                ItemStack diamondStack = new ItemStack(Items.DIAMOND);
-                ItemEntity diamondEntity = new ItemEntity(worldIn, pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5, diamondStack, 0.0, 0.2, 0.0);
-                worldIn.addFreshEntity(diamondEntity);
-
-            } else {
-                worldIn.playSound(null, pos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
-            }
-
         }
-        return InteractionResult.SUCCESS;
+
+        if (hasFirstIngredient && hasSecondIngredient) {
+            if (!worldIn.canSeeSky(pos)) {
+                return InteractionResult.PASS;
+            }
+            for (ItemEntity itemEntity : itemsToRemove) {
+                itemEntity.remove(Entity.RemovalReason.KILLED);
+            }
+            BlockPos AnvilPos = new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ());
+            LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(worldIn);
+            if (lightningbolt != null) {
+                lightningbolt.setVisualOnly(true);
+                lightningbolt.moveTo(Vec3.atBottomCenterOf(AnvilPos).add(0, 0.3, 0));
+                worldIn.addFreshEntity(lightningbolt);
+            }
+
+            ItemStack diamondStack = new ItemStack(Items.DIAMOND);
+            ItemEntity diamondEntity =
+                    new ItemEntity(worldIn, pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5, diamondStack, 0.0, 0.2, 0.0);
+            worldIn.addFreshEntity(diamondEntity);
+
+            return InteractionResult.SUCCESS;
+        }
+
+        worldIn.playSound(null, pos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+        return InteractionResult.PASS;
     }
-
-
 }

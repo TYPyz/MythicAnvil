@@ -34,9 +34,8 @@ public class MythicWandItem extends Item {
                     // Sostituisci il blocco MYSTIC_LOG con un blocco di Anvil
                     context.getLevel().setBlockAndUpdate(positionClicked, Blocks.ANVIL.defaultBlockState());
                     // Dopo aver piazzato l'Anvil
-                        context.getLevel().playSound(null, positionClicked, SoundEvents.LIGHTNING_BOLT_THUNDER , SoundSource.BLOCKS, 1.0F, 1.0F);
-                        context.getLevel().playSound(null, positionClicked, SoundEvents.ANVIL_USE , SoundSource.BLOCKS, 1.0F, 1.0F);
-
+                    context.getLevel().playSound(null, positionClicked, SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    context.getLevel().playSound(null, positionClicked, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
 
 
                 }
