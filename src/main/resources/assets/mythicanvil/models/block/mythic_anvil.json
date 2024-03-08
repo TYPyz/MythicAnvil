@@ -1,7 +1,7 @@
 {
 	"credit": "Made with Blockbench",
-	"texture_size": [80, 80],
 	"render_type": "minecraft:cutout",
+	"texture_size": [80, 80],
 	"textures": {
 		"0": "mythicanvil:block/mythic_anvil",
 		"particle": "mythicanvil:block/mythic_anvil"
@@ -272,8 +272,22 @@
 	],
 	"display": {
 		"thirdperson_righthand": {
-			"rotation": [90, 0, 0],
-			"translation": [-6, -2, 21.25]
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, 45, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, 225, 0],
+			"scale": [0.4, 0.4, 0.4]
 		},
 		"ground": {
 			"translation": [0, 3, 0],
@@ -281,7 +295,11 @@
 		},
 		"gui": {
 			"rotation": [30, 225, 0],
-			"scale": [0.625, 0.625, 0.625]
+			"translation": [0, -0.75, 0],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"fixed": {
+			"scale": [0.5, 0.5, 0.5]
 		}
 	},
 	"groups": [
