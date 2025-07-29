@@ -1,7 +1,9 @@
 package com.typ.mythicanvil;
 
 import com.typ.mythicanvil.block.ModBlocks;
+import com.typ.mythicanvil.event.RitualEvent;
 import com.typ.mythicanvil.item.ModItems;
+import com.typ.mythicanvil.ritual.RitualRecipeManager;
 import net.minecraft.world.item.CreativeModeTabs;
 import org.slf4j.Logger;
 
@@ -36,6 +38,9 @@ public class MythicAnvil {
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
 
+        // Register the crafting events
+        NeoForge.EVENT_BUS.register(RitualEvent.class);
+
         ModCreativeModeTab.register(modEventBus);
 
         ModItems.register(modEventBus);
@@ -49,7 +54,9 @@ public class MythicAnvil {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-
+        // Register ritual recipes
+        RitualRecipeManager.registerRecipes();
+        LOGGER.info("Ritual recipes registered!");
     }
 
     // Add the example block item to the building blocks tab
