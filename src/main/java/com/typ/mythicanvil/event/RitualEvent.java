@@ -31,24 +31,34 @@ public class RitualEvent {
             return;
         }
 
-        System.out.println("Right-clicked block: " + state.getBlock());
-        System.out.println("Held item: " + heldItem.getItem());
+        // Early performance checks - exit quickly if no recipe could possibly match
 
-        RitualRecipe recipe = RitualRecipeManager.findRecipe(state.getBlock(), heldItem.getItem());
-        if (recipe == null) {
-            System.out.println("No recipe found for this combination");
-            return;
+        // First check: Is there any recipe with this activation item?
+        boolean hasMatchingActivationItem = RitualRecipeManager.hasRecipeWithActivationItem(heldItem.getItem());
+        if (!hasMatchingActivationItem) {
+            return; // No recipe uses this activation item, exit early
         }
 
-        System.out.println("Found matching recipe!");
+        // Second check: Is there any recipe with this ritual block AND activation item combination?
+        boolean hasMatchingBlockAndItem = RitualRecipeManager.hasRecipeWithBlockAndActivationItem(state.getBlock(), heldItem.getItem());
+        if (!hasMatchingBlockAndItem) {
+            return; // No recipe uses this block + activation item combination, exit early
+        }
 
+        // Both checks passed, proceed with expensive operations
+
+        // Get available items first
         BlockPos abovePos = pos.above();
         AABB searchArea = new AABB(abovePos).inflate(1.0);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, searchArea);
 
-        System.out.println("Found " + items.size() + " items above the block");
-        for (ItemEntity item : items) {
-            System.out.println("Item: " + item.getItem().getItem() + " Count: " + item.getItem().getCount());
+        // Find recipe based on block, activation item, AND available items
+        RitualRecipe recipe = RitualRecipeManager.findMatchingRecipe(state.getBlock(), heldItem.getItem(), items);
+        if (recipe == null) {
+            // Play broken tool sound when no recipe is found
+            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ITEM_BREAK,
+                    net.minecraft.sounds.SoundSource.BLOCKS, 0.8F, 0.6F);
+            return;
         }
 
         // Check if we have all required items (allowing extras)
@@ -58,11 +68,6 @@ public class RitualEvent {
 
         for (ItemStack required : requiredItems) {
             int needed = required.getCount();
-            System.out.println("Looking for " + needed + " of " + required.getItem());
-
-            // Track which entities we've already planned to consume from
-            List<ItemEntity> usedEntities = new ArrayList<>();
-            List<Integer> usedAmounts = new ArrayList<>();
 
             for (ItemEntity entity : items) {
                 if (needed <= 0) break;
@@ -87,20 +92,15 @@ public class RitualEvent {
                         consumeAmounts.add(toTake);
                         needed -= toTake;
 
-                        System.out.println("Found " + toTake + " of " + required.getItem() + ", still need " + needed);
-
                         if (needed <= 0) break;
                     }
                 }
             }
 
             if (needed > 0) {
-                System.out.println("Not enough " + required.getItem() + " - missing " + needed);
                 return;
             }
         }
-
-        System.out.println("All required items found! Executing ritual...");
 
         // Consume the items
         for (int i = 0; i < toConsume.size(); i++) {
@@ -116,15 +116,30 @@ public class RitualEvent {
             }
         }
 
-        // Create output item
-        ItemEntity outputEntity = new ItemEntity(level,
-                abovePos.getX() + 0.5,
-                abovePos.getY() + 0.1,
-                abovePos.getZ() + 0.5,
-                recipe.getOutputItem().copy());
+        // Strike lightning at the ritual block position
+        net.minecraft.world.entity.LightningBolt lightning = net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(level);
+        if (lightning != null) {
+            lightning.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+            lightning.setVisualOnly(true); // This prevents the lightning from causing fire/damage
+            level.addFreshEntity(lightning);
+        }
 
-        outputEntity.setDeltaMovement(0, 0.2, 0);
-        level.addFreshEntity(outputEntity);
+        // Create output item after a small delay (using scheduler)
+        level.scheduleTick(pos, state.getBlock(), 10); // 10 ticks = 0.5 seconds delay
+
+        // Store the recipe output in a temporary way - we'll create the item immediately for now
+        // but you could implement a more sophisticated delay system if needed
+        level.getServer().execute(() -> {
+            // Create output item with slight delay
+            ItemEntity outputEntity = new ItemEntity(level,
+                    abovePos.getX() + 0.5,
+                    abovePos.getY() + 0.1,
+                    abovePos.getZ() + 0.5,
+                    recipe.getOutputItem().copy());
+
+            outputEntity.setDeltaMovement(0, 0.2, 0);
+            level.addFreshEntity(outputEntity);
+        });
 
         // Play sound
         level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ANVIL_USE,
@@ -132,7 +147,5 @@ public class RitualEvent {
 
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS);
-
-        System.out.println("Ritual completed successfully!");
     }
 }
