@@ -60,21 +60,37 @@ public class RitualEvent {
             int needed = required.getCount();
             System.out.println("Looking for " + needed + " of " + required.getItem());
 
+            // Track which entities we've already planned to consume from
+            List<ItemEntity> usedEntities = new ArrayList<>();
+            List<Integer> usedAmounts = new ArrayList<>();
+
             for (ItemEntity entity : items) {
                 if (needed <= 0) break;
 
                 ItemStack stack = entity.getItem();
                 if (stack.is(required.getItem())) {
                     int available = stack.getCount();
-                    int toTake = Math.min(needed, available);
 
-                    toConsume.add(entity);
-                    consumeAmounts.add(toTake);
-                    needed -= toTake;
+                    // Check if we've already planned to consume from this entity
+                    int alreadyPlanned = 0;
+                    for (int i = 0; i < toConsume.size(); i++) {
+                        if (toConsume.get(i) == entity) {
+                            alreadyPlanned += consumeAmounts.get(i);
+                        }
+                    }
 
-                    System.out.println("Found " + toTake + " of " + required.getItem() + ", still need " + needed);
+                    int actuallyAvailable = available - alreadyPlanned;
+                    if (actuallyAvailable > 0) {
+                        int toTake = Math.min(needed, actuallyAvailable);
 
-                    if (needed <= 0) break;
+                        toConsume.add(entity);
+                        consumeAmounts.add(toTake);
+                        needed -= toTake;
+
+                        System.out.println("Found " + toTake + " of " + required.getItem() + ", still need " + needed);
+
+                        if (needed <= 0) break;
+                    }
                 }
             }
 
