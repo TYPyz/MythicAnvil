@@ -11,11 +11,12 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "mythicanvil:bismuth_block"
+          "name": "mythicanvil:mythic_anvil"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "mythicanvil:blocks/bismuth_block"
+  "random_sequence": "mythicanvil:blocks/mythic_anvil"
 }
+

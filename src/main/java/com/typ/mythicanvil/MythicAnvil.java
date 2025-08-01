@@ -63,7 +63,7 @@ public class MythicAnvil {
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(ModItems.TRIGGER);
-            event.accept(ModBlocks.BISMUTH_BLOCK);
+            event.accept(ModBlocks.MYTHIC_ANVIL);
         }
     }
 

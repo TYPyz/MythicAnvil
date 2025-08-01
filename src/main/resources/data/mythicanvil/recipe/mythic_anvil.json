@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BBB",
+    " I ",
+    "III"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:iron_block"
+    },
+    "I": {
+      "item": "minecraft:oak_log"
+    }
+  },
+  "result": {
+    "item": "mythicanvil:mythic_anvil"
+  }
+}
+

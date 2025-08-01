@@ -26,59 +26,97 @@ public class RitualEvent {
         BlockState state = level.getBlockState(pos);
         ItemStack heldItem = player.getItemInHand(event.getHand());
 
-        // Find a matching recipe
-        RitualRecipe recipe = RitualRecipeManager.findRecipe(state.getBlock(), heldItem.getItem());
-        if (recipe == null) {
+        // Only process on server side
+        if (level.isClientSide()) {
             return;
         }
 
-        // Get the position above the ritual block
-        BlockPos abovePos = pos.above();
+        System.out.println("Right-clicked block: " + state.getBlock());
+        System.out.println("Held item: " + heldItem.getItem());
 
-        // Check for items in the area above the block
-        AABB searchArea = new AABB(abovePos).inflate(0.5);
+        RitualRecipe recipe = RitualRecipeManager.findRecipe(state.getBlock(), heldItem.getItem());
+        if (recipe == null) {
+            System.out.println("No recipe found for this combination");
+            return;
+        }
+
+        System.out.println("Found matching recipe!");
+
+        BlockPos abovePos = pos.above();
+        AABB searchArea = new AABB(abovePos).inflate(1.0);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, searchArea);
 
-        // Check if we have all the required input items
-        List<ItemEntity> foundItems = new ArrayList<>();
+        System.out.println("Found " + items.size() + " items above the block");
+        for (ItemEntity item : items) {
+            System.out.println("Item: " + item.getItem().getItem() + " Count: " + item.getItem().getCount());
+        }
+
+        // Check if we have all required items (allowing extras)
         List<ItemStack> requiredItems = new ArrayList<>(recipe.getInputItems());
+        List<ItemEntity> toConsume = new ArrayList<>();
+        List<Integer> consumeAmounts = new ArrayList<>();
 
-        for (ItemEntity itemEntity : items) {
-            ItemStack itemStack = itemEntity.getItem();
+        for (ItemStack required : requiredItems) {
+            int needed = required.getCount();
+            System.out.println("Looking for " + needed + " of " + required.getItem());
 
-            // Check if this item matches any of the required items
-            for (int i = 0; i < requiredItems.size(); i++) {
-                ItemStack required = requiredItems.get(i);
-                if (itemStack.is(required.getItem()) && itemStack.getCount() >= required.getCount()) {
-                    foundItems.add(itemEntity);
-                    requiredItems.remove(i);
-                    break;
+            for (ItemEntity entity : items) {
+                if (needed <= 0) break;
+
+                ItemStack stack = entity.getItem();
+                if (stack.is(required.getItem())) {
+                    int available = stack.getCount();
+                    int toTake = Math.min(needed, available);
+
+                    toConsume.add(entity);
+                    consumeAmounts.add(toTake);
+                    needed -= toTake;
+
+                    System.out.println("Found " + toTake + " of " + required.getItem() + ", still need " + needed);
+
+                    if (needed <= 0) break;
                 }
             }
-        }
 
-        // If we have all required items, perform the ritual
-        if (requiredItems.isEmpty()) {
-            // Remove the input items
-            for (ItemEntity itemEntity : foundItems) {
-                itemEntity.discard();
+            if (needed > 0) {
+                System.out.println("Not enough " + required.getItem() + " - missing " + needed);
+                return;
             }
-
-            // Create and drop the output item
-            ItemEntity outputEntity = new ItemEntity(level,
-                    abovePos.getX() + 0.5,
-                    abovePos.getY() + 0.5,
-                    abovePos.getZ() + 0.5,
-                    recipe.getOutputItem());
-            level.addFreshEntity(outputEntity);
-
-            // Play a sound effect
-            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ANVIL_USE,
-                    net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
-
-            // Cancel the event to prevent normal interaction
-            event.setCanceled(true);
-            event.setCancellationResult(InteractionResult.SUCCESS);
         }
+
+        System.out.println("All required items found! Executing ritual...");
+
+        // Consume the items
+        for (int i = 0; i < toConsume.size(); i++) {
+            ItemEntity entity = toConsume.get(i);
+            int amount = consumeAmounts.get(i);
+            ItemStack stack = entity.getItem();
+
+            if (stack.getCount() <= amount) {
+                entity.discard();
+            } else {
+                stack.shrink(amount);
+                entity.setItem(stack);
+            }
+        }
+
+        // Create output item
+        ItemEntity outputEntity = new ItemEntity(level,
+                abovePos.getX() + 0.5,
+                abovePos.getY() + 0.1,
+                abovePos.getZ() + 0.5,
+                recipe.getOutputItem().copy());
+
+        outputEntity.setDeltaMovement(0, 0.2, 0);
+        level.addFreshEntity(outputEntity);
+
+        // Play sound
+        level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ANVIL_USE,
+                net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS);
+
+        System.out.println("Ritual completed successfully!");
     }
 }
