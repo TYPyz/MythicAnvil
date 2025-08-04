@@ -74,6 +74,12 @@ public class RitualCraftingHandler {
             performRitualCrafting(matchingRecipe.get(), input, (ServerLevel) level, pos, nearbyItems, player);
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
+        } else {
+            // No matching recipe found - play breaking tool sound to indicate failure
+            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ITEM_BREAK,
+                           net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+            event.setCancellationResult(InteractionResult.SUCCESS);
+            event.setCanceled(true);
         }
     }
 
@@ -98,6 +104,14 @@ public class RitualCraftingHandler {
             // Consume one of the trigger item
             if (!player.isCreative()) {
                 input.triggerItem().shrink(1);
+            }
+
+            // Strike lightning at the target block position for dramatic effect
+            net.minecraft.world.entity.LightningBolt lightning = net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(level);
+            if (lightning != null) {
+                lightning.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+                lightning.setVisualOnly(true); // Makes it visual only - won't cause fire or damage
+                level.addFreshEntity(lightning);
             }
 
             // Drop the result at the block position
