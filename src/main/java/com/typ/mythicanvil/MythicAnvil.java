@@ -2,6 +2,8 @@ package com.typ.mythicanvil;
 
 import com.typ.mythicanvil.block.ModBlocks;
 import com.typ.mythicanvil.item.ModItems;
+import com.typ.mythicanvil.recipe.ModRecipeSerializers;
+import com.typ.mythicanvil.recipe.ModRecipeTypes;
 import net.minecraft.world.item.CreativeModeTabs;
 import org.slf4j.Logger;
 
@@ -33,7 +35,9 @@ public class MythicAnvil {
         // Register ourselves for server and other game events we are interested in.
         NeoForge.EVENT_BUS.register(this);
 
-        // Register the crafting events
+        // Register the recipe system components
+        ModRecipeTypes.register(modEventBus);
+        ModRecipeSerializers.register(modEventBus);
 
         ModCreativeModeTab.register(modEventBus);
 
