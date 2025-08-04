@@ -1,0 +1,22 @@
+{
+  "type": "mythicanvil:ritual",
+  "target_block": {
+    "Name": "minecraft:stone"
+  },
+  "trigger_item": {
+    "item": "minecraft:stick"
+  },
+  "thrown_items": [
+    {
+      "item": "minecraft:gunpowder"
+    },
+    {
+      "item": "minecraft:sand"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:tnt"
+  }
+}
+

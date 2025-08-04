@@ -1,0 +1,22 @@
+{
+  "type": "mythicanvil:ritual",
+  "target_block": {
+    "Name": "minecraft:stone"
+  },
+  "trigger_item": {
+    "item": "minecraft:stick"
+  },
+  "thrown_items": [
+    {
+      "item": "minecraft:coal"
+    },
+    {
+      "item": "minecraft:stick"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:torch"
+  }
+}
+
