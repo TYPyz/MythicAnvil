@@ -101,8 +101,8 @@ public class RitualCraftingHandler {
                 itemEntity.discard();
             }
 
-            // Consume one of the trigger item
-            if (!player.isCreative()) {
+            // Conditionally consume the trigger item based on recipe setting
+            if (recipe.shouldConsumeTrigger() && !player.isCreative()) {
                 input.triggerItem().shrink(1);
             }
 

@@ -17,6 +17,6 @@
   "result": {
     "count": 1,
     "id": "minecraft:tnt"
-  }
+  },
+  "consume_trigger": true
 }
-

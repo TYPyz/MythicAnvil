@@ -20,6 +20,6 @@
   "result": {
     "count": 1,
     "id": "minecraft:crossbow"
-  }
+  },
+  "consume_trigger": true
 }
-

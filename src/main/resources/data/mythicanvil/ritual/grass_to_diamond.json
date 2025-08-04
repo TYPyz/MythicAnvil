@@ -14,6 +14,6 @@
   "result": {
     "count": 1,
     "id": "minecraft:diamond"
-  }
+  },
+  "consume_trigger": true
 }
-

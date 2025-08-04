@@ -17,6 +17,6 @@
   "result": {
     "count": 1,
     "id": "minecraft:redstone_lamp"
-  }
+  },
+  "consume_trigger": false
 }
-

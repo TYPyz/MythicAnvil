@@ -21,7 +21,8 @@ public class RitualRecipeSerializer implements RecipeSerializer<RitualRecipe> {
             BlockState.CODEC.fieldOf("target_block").forGetter(RitualRecipe::getTargetBlock),
             Ingredient.CODEC.fieldOf("trigger_item").forGetter(RitualRecipe::getTriggerItem),
             Ingredient.CODEC.listOf().fieldOf("thrown_items").forGetter(RitualRecipe::getThrownItems),
-            ItemStack.CODEC.fieldOf("result").forGetter(RitualRecipe::getResult)
+            ItemStack.CODEC.fieldOf("result").forGetter(RitualRecipe::getResult),
+            Codec.BOOL.optionalFieldOf("consume_trigger", true).forGetter(RitualRecipe::shouldConsumeTrigger)
     ).apply(inst, RitualRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RitualRecipe> STREAM_CODEC =
@@ -30,6 +31,7 @@ public class RitualRecipeSerializer implements RecipeSerializer<RitualRecipe> {
                     Ingredient.CONTENTS_STREAM_CODEC, RitualRecipe::getTriggerItem,
                     Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), RitualRecipe::getThrownItems,
                     ItemStack.STREAM_CODEC, RitualRecipe::getResult,
+                    ByteBufCodecs.BOOL, RitualRecipe::shouldConsumeTrigger,
                     RitualRecipe::new
             );
 
