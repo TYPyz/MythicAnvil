@@ -22,13 +22,19 @@ public class RitualRecipe implements Recipe<RitualRecipeInput> {
     private final List<Ingredient> thrownItems;
     private final ItemStack result;
     private final boolean consumeTrigger;
+    private final boolean lightning;
 
     public RitualRecipe(BlockState targetBlock, Ingredient triggerItem, List<Ingredient> thrownItems, ItemStack result, boolean consumeTrigger) {
+        this(targetBlock, triggerItem, thrownItems, result, consumeTrigger, true); // Default to true for backwards compatibility
+    }
+
+    public RitualRecipe(BlockState targetBlock, Ingredient triggerItem, List<Ingredient> thrownItems, ItemStack result, boolean consumeTrigger, boolean lightning) {
         this.targetBlock = targetBlock;
         this.triggerItem = triggerItem;
         this.thrownItems = thrownItems;
         this.result = result;
         this.consumeTrigger = consumeTrigger;
+        this.lightning = lightning;
     }
 
     @Override
@@ -128,5 +134,9 @@ public class RitualRecipe implements Recipe<RitualRecipeInput> {
 
     public boolean shouldConsumeTrigger() {
         return consumeTrigger;
+    }
+
+    public boolean shouldStrikeLightning() {
+        return lightning;
     }
 }

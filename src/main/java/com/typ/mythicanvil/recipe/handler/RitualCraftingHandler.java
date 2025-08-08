@@ -106,12 +106,14 @@ public class RitualCraftingHandler {
                 input.triggerItem().shrink(1);
             }
 
-            // Strike lightning at the target block position for dramatic effect
-            net.minecraft.world.entity.LightningBolt lightning = net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(level);
-            if (lightning != null) {
-                lightning.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-                lightning.setVisualOnly(true); // Makes it visual only - won't cause fire or damage
-                level.addFreshEntity(lightning);
+            // Conditionally strike lightning based on recipe setting
+            if (recipe.shouldStrikeLightning()) {
+                net.minecraft.world.entity.LightningBolt lightning = net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(level);
+                if (lightning != null) {
+                    lightning.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+                    lightning.setVisualOnly(true); // Makes it visual only - won't cause fire or damage
+                    level.addFreshEntity(lightning);
+                }
             }
 
             // Drop the result at the block position

@@ -15,5 +15,6 @@
     "count": 1,
     "id": "minecraft:diamond"
   },
-  "consume_trigger": true
+  "consume_trigger": true,
+  "lightning": true
 }

@@ -12,11 +12,27 @@
     },
     {
       "item": "minecraft:stick"
+    },
+    {
+      "item": "minecraft:apple"
+    },
+    {
+      "item": "minecraft:stone"
+    },
+    {
+      "item": "minecraft:oak_log"
+    },
+    {
+      "item": "minecraft:oak_planks"
+    },
+    {
+      "item": "minecraft:cobblestone"
     }
   ],
   "result": {
     "count": 4,
     "id": "minecraft:torch"
   },
-  "consume_trigger": false
+  "consume_trigger": false,
+  "lightning": true
 }

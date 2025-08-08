@@ -1,5 +1,13 @@
 {
   "item.mythicanvil.trigger": "Trigger",
   "block.mythicanvil.mythic_anvil": "Mythic Anvil",
-  "creativetab.mythicanvil.mythicanvil_items": "Mythic Anvil Items"
+  "creativetab.mythicanvil.mythicanvil_items": "Mythic Anvil Items",
+  "gui.mythicanvil.category.ritual": "Ritual Crafting",
+  "gui.mythicanvil.ritual.right_click": "Ritual Block ",
+  "gui.mythicanvil.ritual.with": "Trigger",
+  "gui.mythicanvil.ritual.result": "Result",
+  "gui.mythicanvil.ritual.items_on_ground": "Items to drop on the Ritual Block",
+  "gui.mythicanvil.ritual.consumes_trigger": "Consumes",
+  "gui.mythicanvil.ritual.reusable_trigger": "Reusable",
+  "gui.mythicanvil.ritual.q": "Q"
 }

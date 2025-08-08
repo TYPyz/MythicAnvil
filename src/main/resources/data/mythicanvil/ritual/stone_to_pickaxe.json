@@ -18,5 +18,6 @@
     "count": 1,
     "id": "minecraft:iron_pickaxe"
   },
-  "consume_trigger": false
+  "consume_trigger": false,
+  "lightning": false
 }

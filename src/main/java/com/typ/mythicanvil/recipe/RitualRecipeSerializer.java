@@ -22,7 +22,8 @@ public class RitualRecipeSerializer implements RecipeSerializer<RitualRecipe> {
             Ingredient.CODEC.fieldOf("trigger_item").forGetter(RitualRecipe::getTriggerItem),
             Ingredient.CODEC.listOf().fieldOf("thrown_items").forGetter(RitualRecipe::getThrownItems),
             ItemStack.CODEC.fieldOf("result").forGetter(RitualRecipe::getResult),
-            Codec.BOOL.optionalFieldOf("consume_trigger", true).forGetter(RitualRecipe::shouldConsumeTrigger)
+            Codec.BOOL.optionalFieldOf("consume_trigger", true).forGetter(RitualRecipe::shouldConsumeTrigger),
+            Codec.BOOL.optionalFieldOf("lightning", true).forGetter(RitualRecipe::shouldStrikeLightning)
     ).apply(inst, RitualRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RitualRecipe> STREAM_CODEC =
@@ -32,6 +33,7 @@ public class RitualRecipeSerializer implements RecipeSerializer<RitualRecipe> {
                     Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), RitualRecipe::getThrownItems,
                     ItemStack.STREAM_CODEC, RitualRecipe::getResult,
                     ByteBufCodecs.BOOL, RitualRecipe::shouldConsumeTrigger,
+                    ByteBufCodecs.BOOL, RitualRecipe::shouldStrikeLightning,
                     RitualRecipe::new
             );
 

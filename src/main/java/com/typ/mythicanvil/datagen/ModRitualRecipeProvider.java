@@ -30,13 +30,14 @@ public class ModRitualRecipeProvider extends RecipeProvider implements IConditio
         RecipeOutput ritualOutput = new RitualRecipeOutput(recipeOutput);
 
         // Example ritual recipe: Right-click grass block with stick while having dirt nearby
-        // Results in a diamond - consumes trigger item (default behavior)
+        // Results in a diamond - consumes trigger item and strikes lightning (default behavior)
         RitualRecipe grassToDiamond = new RitualRecipe(
             Blocks.GRASS_BLOCK.defaultBlockState(),
             Ingredient.of(Items.STICK),
             List.of(Ingredient.of(Items.DIRT)),
             new ItemStack(Items.DIAMOND),
-            true // consume trigger item
+            true, // consume trigger item
+            true  // strike lightning
         );
 
         ritualOutput.accept(
@@ -46,13 +47,14 @@ public class ModRitualRecipeProvider extends RecipeProvider implements IConditio
         );
 
         // Example ritual recipe: Right-click stone with apple while having coal and iron nearby
-        // Results in an iron pickaxe - does NOT consume trigger item (reusable catalyst)
+        // Results in an iron pickaxe - does NOT consume trigger item and NO lightning (silent ritual)
         RitualRecipe stoneToPickaxe = new RitualRecipe(
             Blocks.STONE.defaultBlockState(),
             Ingredient.of(Items.APPLE),
             List.of(Ingredient.of(Items.COAL), Ingredient.of(Items.IRON_INGOT)),
             new ItemStack(Items.IRON_PICKAXE),
-            false // don't consume trigger item
+            false, // don't consume trigger item
+            false  // don't strike lightning
         );
 
         ritualOutput.accept(

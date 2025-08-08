@@ -7,6 +7,7 @@ import com.typ.mythicanvil.recipe.ModRecipeTypes;
 import com.typ.mythicanvil.datagen.DataGenerators;
 
 import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
@@ -23,6 +24,7 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 public class MythicAnvil {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "mythicanvil";
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -34,11 +36,13 @@ public class MythicAnvil {
         NeoForge.EVENT_BUS.register(this);
 
         // Register the crafting events
-
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
         ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
+
+        // Register creative mode tab
+        ModCreativeModeTab.register(modEventBus);
 
         // Register data generators
         modEventBus.addListener(DataGenerators::gatherData);
