@@ -35,7 +35,6 @@ public class RitualRecipeCategory implements IRecipeCategory<RitualRecipe> {
 
     public RitualRecipeCategory(IGuiHelper guiHelper) {
         this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.MYTHIC_ANVIL));
-//        this.background = guiHelper.createDrawable(MYIMAGE, 0, 0, 176, 120);
         this.title = Component.translatable("gui.mythicanvil.category.ritual");
     }
 
