@@ -1,0 +1,27 @@
+{
+  "type": "mythicanvil:ritual",
+  "target_block": {
+    "Name": "minecraft:obsidian"
+  },
+  "trigger_item": {
+    "item": "minecraft:iron_block"
+  },
+  "thrown_items": [
+    {
+      "item": "minecraft:red_carpet"
+    },
+    {
+      "item": "minecraft:anvil"
+    },
+    {
+      "tag": "minecraft:logs"
+    }
+  ],
+  "result": {
+    "id": "mythicanvil:mythic_anvil",
+    "count": 1
+  },
+  "consume_trigger": true,
+  "lightning": true
+}
+

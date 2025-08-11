@@ -105,7 +105,7 @@ public class RitualCraftingHandler {
             if (recipe.shouldConsumeTrigger() && !player.isCreative()) {
                 input.triggerItem().shrink(1);
             }
-
+            player.swing(InteractionHand.MAIN_HAND); // Simulate player swing
             // Conditionally strike lightning based on recipe setting
             if (recipe.shouldStrikeLightning()) {
                 net.minecraft.world.entity.LightningBolt lightning = net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(level);

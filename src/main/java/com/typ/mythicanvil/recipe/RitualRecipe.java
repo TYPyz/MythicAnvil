@@ -49,14 +49,24 @@ public class RitualRecipe implements Recipe<RitualRecipeInput> {
             return false;
         }
 
-        // Check if we have the right number of thrown items
-        if (input.thrownItems().size() != this.thrownItems.size()) {
+        // Expand ItemStacks with count > 1 into individual items for proper matching
+        List<ItemStack> expandedInputItems = new ArrayList<>();
+        for (ItemStack stack : input.thrownItems()) {
+            for (int i = 0; i < stack.getCount(); i++) {
+                ItemStack singleItem = stack.copy();
+                singleItem.setCount(1);
+                expandedInputItems.add(singleItem);
+            }
+        }
+
+        // Check if we have the right number of thrown items after expansion
+        if (expandedInputItems.size() != this.thrownItems.size()) {
             return false;
         }
 
         // Check if all thrown items match (order doesn't matter)
-        // Create a copy of the input items to track which ones we've matched
-        List<ItemStack> remainingInputItems = new ArrayList<>(input.thrownItems());
+        // Create a copy of the expanded input items to track which ones we've matched
+        List<ItemStack> remainingInputItems = new ArrayList<>(expandedInputItems);
 
         // For each required ingredient, try to find a matching item in the input
         for (Ingredient requiredIngredient : this.thrownItems) {

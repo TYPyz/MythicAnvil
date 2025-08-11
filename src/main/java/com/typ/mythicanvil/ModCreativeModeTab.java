@@ -17,10 +17,10 @@ public class ModCreativeModeTab {
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MythicAnvil.MOD_ID);
 
     public static final Supplier<CreativeModeTab> BISMUTH_ITEMS_TAB = CREATIVE_MODE_TAB.register("mythicanvil_items_tab",
-            () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.TRIGGER.get()))
+            () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModBlocks.MYTHIC_ANVIL.get()))
                     .title(Component.translatable("creativetab.mythicanvil.mythicanvil_items"))
                     .displayItems((itemDisplayParameters, output) -> {
-                        output.accept(ModItems.TRIGGER);
+                        output.accept(ModItems.MYTHIC_HAMMER);
                         output.accept(ModBlocks.MYTHIC_ANVIL);
                     }).build());
 

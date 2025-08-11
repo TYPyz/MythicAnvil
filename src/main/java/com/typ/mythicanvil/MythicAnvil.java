@@ -44,23 +44,10 @@ public class MythicAnvil {
         // Register creative mode tab
         ModCreativeModeTab.register(modEventBus);
 
-        // Register data generators
-        modEventBus.addListener(DataGenerators::gatherData);
-
-        // Register the item to a creative tab
-        modEventBus.addListener(this::addCreative);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
 
-    }
-
-    // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            event.accept(ModItems.TRIGGER);
-            event.accept(ModBlocks.MYTHIC_ANVIL);
-        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

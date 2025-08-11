@@ -1,0 +1,27 @@
+{
+  "type": "mythicanvil:ritual",
+  "target_block": {
+    "Name": "mythicanvil:mythic_anvil"
+  },
+  "trigger_item": {
+    "item": "minecraft:mace"
+  },
+  "thrown_items": [
+    {
+      "item": "minecraft:diamond"
+    },
+    {
+      "item": "minecraft:leather"
+    },
+    {
+      "item": "minecraft:leather"
+    }
+  ],
+  "result": {
+    "id": "mythicanvil:mythic_hammer",
+    "count": 1
+  },
+  "consume_trigger": true,
+  "lightning": true
+}
+
