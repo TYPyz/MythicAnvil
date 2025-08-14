@@ -88,7 +88,9 @@ public class RitualRecipeManager extends SimpleJsonResourceReloadListener {
     }
 
     public boolean hasRecipesForTargetBlock(BlockState targetBlock) {
-        return validTargetBlocks.contains(targetBlock);
+        // Check if any recipe has a target block with the same block type (ignore blockstate properties)
+        return validTargetBlocks.stream().anyMatch(validBlock ->
+            validBlock.getBlock().equals(targetBlock.getBlock()));
     }
 
     public List<RitualRecipe> getRecipesForTriggerItem(ItemStack triggerItem) {
@@ -99,7 +101,7 @@ public class RitualRecipeManager extends SimpleJsonResourceReloadListener {
 
     public List<RitualRecipe> getRecipesForTargetBlock(BlockState targetBlock) {
         return recipes.values().stream()
-                .filter(recipe -> recipe.getTargetBlock().equals(targetBlock))
+                .filter(recipe -> recipe.getTargetBlock().getBlock().equals(targetBlock.getBlock()))
                 .toList();
     }
 }

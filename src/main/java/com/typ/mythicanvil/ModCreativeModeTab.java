@@ -21,6 +21,7 @@ public class ModCreativeModeTab {
                     .title(Component.translatable("creativetab.mythicanvil.mythicanvil_items"))
                     .displayItems((itemDisplayParameters, output) -> {
                         output.accept(ModItems.MYTHIC_HAMMER);
+                        output.accept(ModItems.RITUAL_DEBUGGER);
                         output.accept(ModBlocks.MYTHIC_ANVIL);
                     }).build());
 

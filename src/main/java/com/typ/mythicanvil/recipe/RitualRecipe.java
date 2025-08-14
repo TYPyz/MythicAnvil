@@ -1,5 +1,6 @@
 package com.typ.mythicanvil.recipe;
 
+import com.typ.mythicanvil.MythicAnvil;
 import com.typ.mythicanvil.recipe.input.RitualRecipeInput;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
@@ -39,8 +40,8 @@ public class RitualRecipe implements Recipe<RitualRecipeInput> {
 
     @Override
     public boolean matches(RitualRecipeInput input, Level level) {
-        // Check if target block matches
-        if (!this.targetBlock.equals(input.targetBlock())) {
+        // Compare only the block type, not the full blockstate (ignoring rotation, facing, etc.)
+        if (!this.targetBlock.getBlock().equals(input.targetBlock().getBlock())) {
             return false;
         }
 
@@ -69,12 +70,14 @@ public class RitualRecipe implements Recipe<RitualRecipeInput> {
         List<ItemStack> remainingInputItems = new ArrayList<>(expandedInputItems);
 
         // For each required ingredient, try to find a matching item in the input
-        for (Ingredient requiredIngredient : this.thrownItems) {
+        for (int reqIndex = 0; reqIndex < this.thrownItems.size(); reqIndex++) {
+            Ingredient requiredIngredient = this.thrownItems.get(reqIndex);
             boolean found = false;
 
             // Look for a matching item in the remaining input items
             for (int i = 0; i < remainingInputItems.size(); i++) {
-                if (requiredIngredient.test(remainingInputItems.get(i))) {
+                ItemStack candidateItem = remainingInputItems.get(i);
+                if (requiredIngredient.test(candidateItem)) {
                     // Found a match, remove it from the remaining items and continue
                     remainingInputItems.remove(i);
                     found = true;
