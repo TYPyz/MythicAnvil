@@ -2,7 +2,6 @@ package com.typ.mythicanvil.datagen;
 
 import com.typ.mythicanvil.MythicAnvil;
 import com.typ.mythicanvil.recipe.RitualRecipe;
-import com.typ.mythicanvil.recipe.ModRecipeSerializers;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -11,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 
@@ -21,14 +19,21 @@ import java.util.concurrent.CompletableFuture;
 public class ModRitualRecipeProvider extends RecipeProvider implements IConditionBuilder {
 
     public ModRitualRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+        // Override the PackOutput to force the correct path
+        super(new PackOutput(output.getOutputFolder()) {
+            @Override
+            public PackOutput.PathProvider createPathProvider(PackOutput.Target target, String path) {
+                // Intercept recipe generation and force "recipes" folder
+                if ("recipe".equals(path)) {
+                    return super.createPathProvider(target, "recipes");
+                }
+                return super.createPathProvider(target, path);
+            }
+        }, registries);
     }
 
     @Override
     protected void buildRecipes(RecipeOutput recipeOutput) {
-        // Create a custom RecipeOutput that saves to the ritual folder
-        RecipeOutput ritualOutput = new RitualRecipeOutput(recipeOutput);
-
         // Example ritual recipe: Right-click grass block with stick while having dirt nearby
         // Results in a diamond - consumes trigger item and strikes lightning (default behavior)
         RitualRecipe grassToDiamond = new RitualRecipe(
@@ -40,7 +45,7 @@ public class ModRitualRecipeProvider extends RecipeProvider implements IConditio
             true  // strike lightning
         );
 
-        ritualOutput.accept(
+        recipeOutput.accept(
             ResourceLocation.fromNamespaceAndPath(MythicAnvil.MOD_ID, "grass_to_diamond"),
             grassToDiamond,
             null
@@ -57,35 +62,10 @@ public class ModRitualRecipeProvider extends RecipeProvider implements IConditio
             false  // don't strike lightning
         );
 
-        ritualOutput.accept(
+        recipeOutput.accept(
             ResourceLocation.fromNamespaceAndPath(MythicAnvil.MOD_ID, "stone_to_pickaxe"),
             stoneToPickaxe,
             null
         );
-    }
-
-    // Custom RecipeOutput that modifies the path to save to ritual folder
-    private static class RitualRecipeOutput implements RecipeOutput {
-        private final RecipeOutput delegate;
-
-        public RitualRecipeOutput(RecipeOutput delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public void accept(ResourceLocation id, Recipe<?> recipe, net.minecraft.advancements.AdvancementHolder advancement, net.neoforged.neoforge.common.conditions.ICondition... conditions) {
-            // Modify the path to save in ritual folder instead of recipes
-            ResourceLocation ritualId = ResourceLocation.fromNamespaceAndPath(
-                id.getNamespace(),
-                id.getPath().replace("recipes/", "ritual/")
-            );
-
-            delegate.accept(ritualId, recipe, advancement, conditions);
-        }
-
-        @Override
-        public net.minecraft.advancements.Advancement.Builder advancement() {
-            return delegate.advancement();
-        }
     }
 }

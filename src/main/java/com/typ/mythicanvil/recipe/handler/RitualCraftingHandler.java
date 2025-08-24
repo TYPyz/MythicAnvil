@@ -2,8 +2,8 @@ package com.typ.mythicanvil.recipe.handler;
 
 import com.typ.mythicanvil.MythicAnvil;
 import com.typ.mythicanvil.recipe.RitualRecipe;
+import com.typ.mythicanvil.recipe.ModRecipeTypes;
 import com.typ.mythicanvil.recipe.input.RitualRecipeInput;
-import com.typ.mythicanvil.recipe.manager.RitualRecipeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -11,26 +11,19 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
 
 import java.util.List;
 import java.util.Optional;
 
 @EventBusSubscriber(modid = "mythicanvil")
 public class RitualCraftingHandler {
-    private static RitualRecipeManager ritualRecipeManager;
-
-    @SubscribeEvent
-    public static void addReloadListener(AddReloadListenerEvent event) {
-        ritualRecipeManager = new RitualRecipeManager();
-        event.addListener(ritualRecipeManager);
-    }
 
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -40,20 +33,30 @@ public class RitualCraftingHandler {
         InteractionHand hand = event.getHand();
 
         // Only process main hand interactions on the server side
-        if (hand != InteractionHand.MAIN_HAND || level.isClientSide() || ritualRecipeManager == null) {
+        if (hand != InteractionHand.MAIN_HAND || level.isClientSide()) {
             return;
         }
 
         ItemStack triggerItem = player.getItemInHand(hand);
         BlockState targetBlock = level.getBlockState(pos);
 
+        // Get all ritual recipes from vanilla recipe manager
+        List<RecipeHolder<RitualRecipe>> allRitualRecipes = level.getRecipeManager()
+                .getAllRecipesFor(ModRecipeTypes.RITUAL_TYPE.get());
+
         // First check: Does the trigger item have any ritual recipes?
-        if (!ritualRecipeManager.hasRecipesForTriggerItem(triggerItem)) {
+        boolean hasTriggerRecipes = allRitualRecipes.stream()
+                .anyMatch(recipeHolder -> recipeHolder.value().getTriggerItem().test(triggerItem));
+        
+        if (!hasTriggerRecipes) {
             return;
         }
 
         // Second check: Does the target block have any ritual recipes?
-        if (!ritualRecipeManager.hasRecipesForTargetBlock(targetBlock)) {
+        boolean hasTargetRecipes = allRitualRecipes.stream()
+                .anyMatch(recipeHolder -> recipeHolder.value().getTargetBlock().getBlock().equals(targetBlock.getBlock()));
+        
+        if (!hasTargetRecipes) {
             return;
         }
 
@@ -66,12 +69,10 @@ public class RitualCraftingHandler {
         // Create recipe input
         RitualRecipeInput input = new RitualRecipeInput(targetBlock, triggerItem, thrownItems);
 
-        // Try to find a matching recipe
-        Optional<RitualRecipe> matchingRecipe = ritualRecipeManager.getAllRecipes().stream()
-                .filter(recipe -> {
-                    boolean matches = recipe.matches(input, level);
-                    return matches;
-                })
+        // Try to find a matching recipe from vanilla recipe manager
+        Optional<RitualRecipe> matchingRecipe = allRitualRecipes.stream()
+                .map(RecipeHolder::value)
+                .filter(recipe -> recipe.matches(input, level))
                 .findFirst();
 
         if (matchingRecipe.isPresent()) {
@@ -142,9 +143,5 @@ public class RitualCraftingHandler {
         } else {
             MythicAnvil.LOGGER.error("RITUAL CRAFTING: Recipe result is empty! This should not happen.");
         }
-    }
-
-    public static RitualRecipeManager getRitualRecipeManager() {
-        return ritualRecipeManager;
     }
 }

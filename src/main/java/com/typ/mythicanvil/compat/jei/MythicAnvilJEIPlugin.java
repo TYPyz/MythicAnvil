@@ -3,7 +3,6 @@ package com.typ.mythicanvil.compat.jei;
 import com.typ.mythicanvil.MythicAnvil;
 import com.typ.mythicanvil.recipe.ModRecipeTypes;
 import com.typ.mythicanvil.recipe.RitualRecipe;
-import com.typ.mythicanvil.recipe.handler.RitualCraftingHandler;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.recipe.RecipeType;
@@ -14,7 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeManager;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 import java.util.List;
 
 @JeiPlugin
@@ -38,24 +36,18 @@ public class MythicAnvilJEIPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         List<RitualRecipe> ritualRecipes;
 
-        // Try to get recipes from the ritual recipe manager first (if available)
-        if (RitualCraftingHandler.getRitualRecipeManager() != null) {
-            Collection<RitualRecipe> managerRecipes = RitualCraftingHandler.getRitualRecipeManager().getAllRecipes();
-            ritualRecipes = List.copyOf(managerRecipes);
-            MythicAnvil.LOGGER.info("Loading {} ritual recipes from RitualRecipeManager", ritualRecipes.size());
-        }
-        // Fallback: try to get from vanilla recipe manager (if level is available)
-        else if (Minecraft.getInstance().level != null) {
+        // Get recipes from vanilla recipe manager
+        if (Minecraft.getInstance().level != null) {
             RecipeManager recipeManager = Minecraft.getInstance().level.getRecipeManager();
             ritualRecipes = recipeManager.getAllRecipesFor(ModRecipeTypes.RITUAL_TYPE.get())
                     .stream()
                     .map(recipeHolder -> recipeHolder.value())
                     .toList();
-            MythicAnvil.LOGGER.info("Loading {} ritual recipes from RecipeManager", ritualRecipes.size());
+            MythicAnvil.LOGGER.info("Loading {} ritual recipes from vanilla RecipeManager for JEI", ritualRecipes.size());
         }
         // No recipes available - return empty list
         else {
-            MythicAnvil.LOGGER.warn("No recipe sources available, no recipes will be shown in JEI");
+            MythicAnvil.LOGGER.warn("No level available, no recipes will be shown in JEI");
             ritualRecipes = List.of();
         }
 

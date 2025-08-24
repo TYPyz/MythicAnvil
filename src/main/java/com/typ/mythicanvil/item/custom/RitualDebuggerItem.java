@@ -1,7 +1,7 @@
 package com.typ.mythicanvil.item.custom;
 
 import com.typ.mythicanvil.recipe.RitualRecipe;
-import com.typ.mythicanvil.recipe.handler.RitualCraftingHandler;
+import com.typ.mythicanvil.recipe.ModRecipeTypes;
 import com.typ.mythicanvil.recipe.input.RitualRecipeInput;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -13,12 +13,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,18 +63,16 @@ public class RitualDebuggerItem extends Item {
             }
         }
 
-        // Check if ritual recipe manager exists
-        if (RitualCraftingHandler.getRitualRecipeManager() == null) {
-            player.sendSystemMessage(Component.literal("ERROR: Ritual Recipe Manager not initialized!").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
-            return InteractionResult.SUCCESS;
-        }
-
         // Create recipe input
         RitualRecipeInput input = new RitualRecipeInput(targetBlock, triggerItem, thrownItems);
 
+        // Get all ritual recipes from vanilla recipe manager
+        List<RecipeHolder<RitualRecipe>> allRitualRecipes = level.getRecipeManager()
+                .getAllRecipesFor(ModRecipeTypes.RITUAL_TYPE.get());
+
         // Find matching recipes - only check recipes for this specific target block
-        Collection<RitualRecipe> allRecipesCollection = RitualCraftingHandler.getRitualRecipeManager().getAllRecipes();
-        List<RitualRecipe> targetBlockRecipes = allRecipesCollection.stream()
+        List<RitualRecipe> targetBlockRecipes = allRitualRecipes.stream()
+                .map(RecipeHolder::value)
                 .filter(recipe -> recipe.getTargetBlock().getBlock().equals(targetBlock.getBlock()))
                 .toList();
 
@@ -100,50 +98,43 @@ public class RitualDebuggerItem extends Item {
 
             player.sendSystemMessage(Component.literal("Required Ingredients:").withStyle(ChatFormatting.BLUE));
             for (int i = 0; i < recipe.getThrownItems().size(); i++) {
-                player.sendSystemMessage(Component.literal("  " + (i + 1) + ". " + recipe.getThrownItems().get(i).toString()).withStyle(ChatFormatting.WHITE));
+                Ingredient ingredient = recipe.getThrownItems().get(i);
+                ItemStack[] stacks = ingredient.getItems();
+                if (stacks.length > 0) {
+                    player.sendSystemMessage(Component.literal("  " + (i + 1) + ". " + stacks[0].getDisplayName().getString()).withStyle(ChatFormatting.WHITE));
+                }
             }
         } else {
-            player.sendSystemMessage(Component.literal("✗ NO MATCHING RECIPE FOUND").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
-
-            // Show detailed analysis of why recipes don't match (only for this target block)
-            player.sendSystemMessage(Component.literal("Analyzing why recipes for this block don't match:").withStyle(ChatFormatting.YELLOW));
-
+            player.sendSystemMessage(Component.literal("✗ NO MATCHING RECIPE").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            
+            // Show why each recipe didn't match
+            player.sendSystemMessage(Component.literal("Analysis of why recipes don't match:").withStyle(ChatFormatting.YELLOW));
             for (int i = 0; i < targetBlockRecipes.size(); i++) {
                 RitualRecipe recipe = targetBlockRecipes.get(i);
-                player.sendSystemMessage(Component.literal("Recipe " + (i + 1) + " (Result: " + recipe.getResult().getDisplayName().getString() + "):").withStyle(ChatFormatting.GRAY));
-
-                // We know target block matches, so check trigger item
+                player.sendSystemMessage(Component.literal("Recipe " + (i + 1) + ":").withStyle(ChatFormatting.AQUA));
+                
+                // Check trigger item
                 if (!recipe.getTriggerItem().test(triggerItem)) {
-                    player.sendSystemMessage(Component.literal("  ✗ Trigger item mismatch: Expected " + recipe.getTriggerItem().toString()).withStyle(ChatFormatting.RED));
-                    continue;
+                    player.sendSystemMessage(Component.literal("  ✗ Trigger item mismatch").withStyle(ChatFormatting.RED));
+                    Ingredient triggerIngredient = recipe.getTriggerItem();
+                    ItemStack[] validTriggers = triggerIngredient.getItems();
+                    if (validTriggers.length > 0) {
+                        player.sendSystemMessage(Component.literal("    Expected: " + validTriggers[0].getDisplayName().getString()).withStyle(ChatFormatting.GRAY));
+                    }
+                } else {
+                    player.sendSystemMessage(Component.literal("  ✓ Trigger item matches").withStyle(ChatFormatting.GREEN));
                 }
-
+                
                 // Check thrown items count
-                List<ItemStack> expandedInputItems = expandItemStacks(thrownItems);
-                if (expandedInputItems.size() != recipe.getThrownItems().size()) {
-                    player.sendSystemMessage(Component.literal("  ✗ Item count mismatch: Expected " + recipe.getThrownItems().size() + ", got " + expandedInputItems.size()).withStyle(ChatFormatting.RED));
-                    continue;
+                if (recipe.getThrownItems().size() != thrownItems.size()) {
+                    player.sendSystemMessage(Component.literal("  ✗ Item count mismatch: expected " + recipe.getThrownItems().size() + ", found " + thrownItems.size()).withStyle(ChatFormatting.RED));
+                } else {
+                    player.sendSystemMessage(Component.literal("  ✓ Item count matches").withStyle(ChatFormatting.GREEN));
                 }
-
-                player.sendSystemMessage(Component.literal("  ✗ Ingredient matching failed").withStyle(ChatFormatting.RED));
             }
         }
 
         player.sendSystemMessage(Component.literal("=== END DEBUG ANALYSIS ===").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-
         return InteractionResult.SUCCESS;
-    }
-
-    private List<ItemStack> expandItemStacks(List<ItemStack> inputStacks) {
-        return inputStacks.stream()
-                .flatMap(stack -> {
-                    return java.util.stream.IntStream.range(0, stack.getCount())
-                            .mapToObj(i -> {
-                                ItemStack singleItem = stack.copy();
-                                singleItem.setCount(1);
-                                return singleItem;
-                            });
-                })
-                .toList();
     }
 }
