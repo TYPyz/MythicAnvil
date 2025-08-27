@@ -2,9 +2,6 @@ package com.typ.mythicanvil;
 
 import com.typ.mythicanvil.block.ModBlocks;
 import com.typ.mythicanvil.item.ModItems;
-import com.typ.mythicanvil.recipe.ModRecipeSerializers;
-import com.typ.mythicanvil.recipe.ModRecipeTypes;
-import com.typ.mythicanvil.datagen.DataGenerators;
 
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
@@ -38,8 +35,6 @@ public class MythicAnvil {
         // Register the crafting events
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
-        ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
-        ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
 
         // Register creative mode tab
         ModCreativeModeTab.register(modEventBus);
